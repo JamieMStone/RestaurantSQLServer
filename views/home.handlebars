@@ -1,0 +1,12 @@
+<h1>Companies</h1>
+{{#each companies}}
+    <a href="/companydetails/{{this.id}}">
+        <article>
+            <label>
+                <img src={{this.logoUrl}}, height="100", width="100">
+                Name:
+                <span>{{this.name}}</span>
+            </label>
+        </article>
+    </a>
+{{/each}}

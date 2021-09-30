@@ -8,6 +8,52 @@ const app = express();
 
 app.use(express.json());
 
+//Handlebars
+const path = require("path");
+const Handlebars = require("handlebars");
+const expressHandlebars = require("express-handlebars");
+const {
+    allowInsecurePrototypeAccess,
+} = require("@handlebars/allow-prototype-access");
+const { Console } = require("console");
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// setup our templating engine
+const handlebars = expressHandlebars({
+    handlebars: allowInsecurePrototypeAccess(Handlebars),
+});
+app.engine("handlebars", handlebars);
+app.set("view engine", "handlebars");
+app.set('views', path.join(__dirname, 'views'));
+
+app.get("/", async (req, res) => {
+    const companies = await Company.findAll();
+    res.render("home", { companies });
+});
+
+app.get("/companydetails/:id", async (req, res) =>{
+    const companyLocation = await Company.findByPk(req.params.id, {
+        include: Location,
+    });
+    if (!companyLocation){
+        return res.sendStatus(404);
+    }
+
+    const companyMenu = await Company.findByPk(req.params.id, {
+        include: Menu,
+    });
+
+    res.render("company", { companyLocation, companyMenu })
+});
+
+
+//
+
+
+
 //Companies
 app.post("/companies", async (req, res) =>{
     const {name, logoUrl} = req.body;
@@ -98,7 +144,7 @@ app.get("/companies/:id/menus" , async (req, res) =>{
     if (!company){
         return res.sendStatus(404);
     }
-    res.json(company);
+    res.json(company.menus);
 });
 
 
